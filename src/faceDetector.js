@@ -1,6 +1,24 @@
-import { FaceMesh } from '@mediapipe/face_mesh'
-import { Camera } from '@mediapipe/camera_utils'
 import { CONFIG } from './config.js'
+
+// Load MediaPipe from CDN dynamically
+async function loadMediaPipe() {
+    return new Promise((resolve, reject) => {
+        // Check if already loaded
+        if (window.FaceMesh) {
+            resolve(window.FaceMesh)
+            return
+        }
+
+        const script = document.createElement('script')
+        script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js'
+        script.crossOrigin = 'anonymous'
+        script.onload = () => {
+            resolve(window.FaceMesh)
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+    })
+}
 
 export class FaceDetector {
     constructor() {
@@ -12,10 +30,11 @@ export class FaceDetector {
         this.mouthRatioHistory = []
         this.eyeRatioHistory = []
         this.isReady = false
+        this.video = null
     }
 
     async init() {
-        const video = document.getElementById('camera-feed')
+        this.video = document.getElementById('camera-feed')
 
         // Explicitly request camera permission first
         try {
@@ -26,12 +45,15 @@ export class FaceDetector {
                     height: { ideal: 240 }
                 }
             })
-            video.srcObject = stream
-            await video.play()
+            this.video.srcObject = stream
+            await this.video.play()
         } catch (err) {
             console.error('Camera permission denied:', err)
             throw new Error('Camera permission denied')
         }
+
+        // Load MediaPipe FaceMesh from CDN
+        const FaceMesh = await loadMediaPipe()
 
         // Initialize FaceMesh
         this.faceMesh = new FaceMesh({
@@ -50,17 +72,24 @@ export class FaceDetector {
         this.faceMesh.onResults((results) => this.onResults(results))
 
         // Start processing frames
-        const processFrame = async () => {
-            if (this.isReady && video.readyState >= 2) {
-                await this.faceMesh.send({ image: video })
-            }
-            requestAnimationFrame(processFrame)
-        }
-
         this.isReady = true
-        processFrame()
+        this.processFrame()
 
         return true
+    }
+
+    async processFrame() {
+        if (!this.isReady) return
+        
+        if (this.video.readyState >= 2) {
+            try {
+                await this.faceMesh.send({ image: this.video })
+            } catch (e) {
+                console.warn('FaceMesh processing error:', e)
+            }
+        }
+        
+        requestAnimationFrame(() => this.processFrame())
     }
 
     onResults(results) {
