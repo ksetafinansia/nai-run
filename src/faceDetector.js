@@ -17,6 +17,22 @@ export class FaceDetector {
     async init() {
         const video = document.getElementById('camera-feed')
 
+        // Explicitly request camera permission first
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'user',
+                    width: { ideal: 320 },
+                    height: { ideal: 240 }
+                }
+            })
+            video.srcObject = stream
+            await video.play()
+        } catch (err) {
+            console.error('Camera permission denied:', err)
+            throw new Error('Camera permission denied')
+        }
+
         // Initialize FaceMesh
         this.faceMesh = new FaceMesh({
             locateFile: (file) => {
@@ -33,17 +49,16 @@ export class FaceDetector {
 
         this.faceMesh.onResults((results) => this.onResults(results))
 
-        // Initialize camera
-        this.camera = new Camera(video, {
-            onFrame: async () => {
+        // Start processing frames
+        const processFrame = async () => {
+            if (this.isReady && video.readyState >= 2) {
                 await this.faceMesh.send({ image: video })
-            },
-            width: 320,
-            height: 240
-        })
+            }
+            requestAnimationFrame(processFrame)
+        }
 
-        await this.camera.start()
         this.isReady = true
+        processFrame()
 
         return true
     }
