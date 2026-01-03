@@ -1,0 +1,27 @@
+<svg width="80" height="40" viewBox="0 0 80 40" xmlns="http://www.w3.org/2000/svg">
+  <!-- Tail (flattened) -->
+  <path d="M12 28 Q5 28 5 22 Q5 16 12 18" fill="#FFD700" />
+  <path d="M6 19 L9 16 L11 20 Z" fill="#FFA500" />
+  
+  <!-- Body (flattened/squished) -->
+  <ellipse cx="38" cy="26" rx="22" ry="12" fill="#FFD700"/>
+  
+  <!-- Wing stripe -->
+  <path d="M42 18 Q55 26 42 34" fill="none" stroke="#FFFACD" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Head (lowered) -->
+  <circle cx="55" cy="18" r="12" fill="#FFD700"/>
+  
+  <!-- Beak (forward facing) -->
+  <ellipse cx="67" cy="20" rx="8" ry="5" fill="#FFD700"/>
+  
+  <!-- Eye -->
+  <circle cx="58" cy="15" r="2.5" fill="black"/>
+  
+  <!-- Crest (flat) -->
+  <path d="M50 8 L53 3 L56 8 Z" fill="#FFA500"/>
+  
+  <!-- Feet (spread out) -->
+  <rect x="26" y="35" width="10" height="5" rx="2" fill="#FFD700"/>
+  <rect x="48" y="35" width="10" height="5" rx="2" fill="#FFD700"/>
+</svg>
