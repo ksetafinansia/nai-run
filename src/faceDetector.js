@@ -117,7 +117,6 @@ export class FaceDetector {
         // Determine eye state - closed eyes mean ducking (blink)
         this.eyeState = avgEyeRatio < CONFIG.EYE_CLOSED_THRESHOLD ? 'CLOSED' : 'OPEN'
     }
-    }
 
     getState() {
         return {
